@@ -13,8 +13,8 @@
     </div>
   </div>
   <div class="button-tab">
-    <button id="agree" class="button" disabled>Agree</button>
     <button id="disagree" class="button">Disagree</button>
+    <button id="agree" class="button" disabled>Agree</button>
   </div>
 
   <script>
@@ -22,14 +22,14 @@
     fetch('POLICY.txt')
       .then(response => response.text())
       .then(text => {
-        document.getElementById('text-container').innerText = text;
+        document.getElementById('text-container').innerHTML = text;
       });
 
-    // Enable the agree button when scrolled to the bottom
-    window.addEventListener('scroll', () => {
-      const textContainer = document.getElementById('text-container');
+    // Enable the agree button when scrolled to the bottom of the text container
+    const textContainer = document.getElementById('text-container');
+    textContainer.addEventListener('scroll', () => {
       const agreeButton = document.getElementById('agree');
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      if (textContainer.scrollTop + textContainer.clientHeight >= textContainer.scrollHeight - 1) {
         agreeButton.disabled = false;
         agreeButton.classList.add('enabled');
       }
@@ -47,4 +47,3 @@
   </script>
 </body>
 </html>
-
