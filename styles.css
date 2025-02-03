@@ -12,7 +12,7 @@ body, html {
 
 #text-container {
   margin-bottom: 80px; /* Ensure there's space for the buttons */
-  width: 100%;
+  width: 600px;
   max-width: 500px; /* Limit the width to a smaller portion on larger screens */
 }
 
@@ -42,16 +42,6 @@ body, html {
   cursor: not-allowed;
 }
 
-.agree {
-  float: right;
-  margin: 10px;
-}
-
-.disagree {
-  float: left;
-  margin: 10px;
-}
-
 .button.enabled {
   background-color: green;
 }
@@ -60,6 +50,12 @@ body, html {
   .button {
     padding: 8px 16px; /* Adjust padding for smaller screens */
     font-size: 14px;
+  }
+
+  #text-container {
+    margin-bottom: 80px; /* Ensure there's space for the buttons */
+    width: 100%;
+    max-width: 500px; /* Limit the width to a smaller portion on larger screens */
   }
 
   .button-tab {
@@ -72,3 +68,14 @@ body, html {
     margin: 5px 0; /* Ensure buttons fit within the screen on smaller devices */
   }
 }
+
+.agree {
+  float: right;
+  margin: 10px;
+}
+
+.disagree {
+  float: left;
+  margin: 10px;
+}
+
