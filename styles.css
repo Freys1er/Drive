@@ -41,3 +41,11 @@ body, html {
 .button.enabled {
   background-color: green;
 }
+
+.button-tab .button:nth-child(1) {
+  order: 2; /* Move the first button to the second position */
+}
+
+.button-tab .button:nth-child(2) {
+  order: 1; /* Move the second button to the first position */
+}
