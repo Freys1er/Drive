@@ -42,6 +42,16 @@ body, html {
   cursor: not-allowed;
 }
 
+.agree {
+  float: right;
+  margin: 10px;
+}
+
+.disagree {
+  float: left;
+  margin: 10px;
+}
+
 .button.enabled {
   background-color: green;
 }
