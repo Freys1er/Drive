@@ -2,18 +2,22 @@ body, html {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
+  height: 100%;
+  overflow: hidden; /* Prevent scrolling on the body */
 }
 
 .content {
   padding: 20px;
   display: flex;
   justify-content: center;
+  height: calc(100% - 80px); /* Leave space for the button tab */
 }
 
 #text-container {
-  margin-bottom: 80px; /* Ensure there's space for the buttons */
   width: 100%;
   max-width: 600px; /* Limit the width to 600px on larger screens */
+  overflow-y: auto; /* Add vertical scrollbar */
+  padding-right: 10px; /* Add some space for the scrollbar */
 }
 
 .button-tab {
@@ -25,6 +29,7 @@ body, html {
   display: flex;
   justify-content: space-between;
   padding: 10px;
+  box-sizing: border-box; /* Include padding and border in element's width and height */
 }
 
 .button {
@@ -64,5 +69,6 @@ body, html {
 
   #text-container {
     width: 100%; /* Ensure text container takes up 100% width on smaller screens */
+    height: calc(100% - 50px); /* Ensure text container height is correct on smaller screens */
   }
 }
