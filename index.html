@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agreement Page</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="content">
+    <div id="text-container">
+      <!-- The text content will be loaded here -->
+    </div>
+  </div>
+  <div class="button-tab">
+    <button id="agree" class="button" disabled>Agree</button>
+    <button id="disagree" class="button">Disagree</button>
+  </div>
+
+  <script>
+    // Load the text file content into the text-container
+    fetch('your-text-file.txt')
+      .then(response => response.text())
+      .then(text => {
+        document.getElementById('text-container').innerText = text;
+      });
+
+    // Enable the agree button when scrolled to the bottom
+    window.addEventListener('scroll', () => {
+      const textContainer = document.getElementById('text-container');
+      const agreeButton = document.getElementById('agree');
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        agreeButton.disabled = false;
+        agreeButton.classList.add('enabled');
+      }
+    });
+
+    // Handle agree button click
+    document.getElementById('agree').addEventListener('click', () => {
+      window.location.href = 'https://drive.google.com/drive/folders/1-32-ebsVvAOq2jPrFOAex6tABnvu98GJ?usp=sharing';
+    });
+
+    // Handle disagree button click
+    document.getElementById('disagree').addEventListener('click', () => {
+      window.close();
+    });
+  </script>
+</body>
+</html>
