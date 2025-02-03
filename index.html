@@ -13,13 +13,13 @@
     </div>
   </div>
   <div class="button-tab">
-    <button id="agree" class="button" disabled>Agree</button>
     <button id="disagree" class="button">Disagree</button>
+    <button id="agree" class="button" disabled>Agree</button>
   </div>
 
   <script>
     // Load the text file content into the text-container
-    fetch('your-text-file.txt')
+    fetch('POLICY.txt')
       .then(response => response.text())
       .then(text => {
         document.getElementById('text-container').innerText = text;
