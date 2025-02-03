@@ -12,7 +12,7 @@ body, html {
 
 #text-container {
   margin-bottom: 80px; /* Ensure there's space for the buttons */
-  width: 600px;
+  width: 100%;
   max-width: 500px; /* Limit the width to a smaller portion on larger screens */
 }
 
@@ -24,7 +24,7 @@ body, html {
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: 10px;
 }
 
 .button {
@@ -35,7 +35,8 @@ body, html {
   color: white;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 1s ease;
+  transition: background-color 0.3s ease;
+  max-width: 45%;
 }
 
 .button:disabled {
@@ -47,35 +48,17 @@ body, html {
 }
 
 @media screen and (max-width: 600px) {
-  .button {
-    padding: 8px 16px; /* Adjust padding for smaller screens */
-    font-size: 14px;
-  }
-
-  #text-container {
-    margin-bottom: 80px; /* Ensure there's space for the buttons */
-    width: 100%;
-    max-width: 500px; /* Limit the width to a smaller portion on larger screens */
-  }
-
   .button-tab {
     flex-direction: column;
     align-items: center;
   }
 
   .button {
-    width: 90%;
+    width: 90%; /* Ensure buttons take up 90% of the screen width */
+    max-width: none;
     margin: 5px 0; /* Ensure buttons fit within the screen on smaller devices */
+    padding: 8px 16px; /* Adjust padding for smaller screens */
+    font-size: 14px;
+    text-align: center; /* Center the text within the button */
   }
 }
-
-.agree {
-  float: right;
-  margin: 10px;
-}
-
-.disagree {
-  float: left;
-  margin: 10px;
-}
-
