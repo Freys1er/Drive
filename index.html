@@ -9,7 +9,7 @@
 <body>
   <div class="content">
     <div id="text-container">
-      <!-- The text content will be loaded here -->
+      <!-- The HTML content will be loaded here -->
     </div>
   </div>
   <div class="button-tab">
@@ -18,11 +18,11 @@
   </div>
 
   <script>
-    // Load the text file content into the text-container
-    fetch('POLICY.txt')
+    // Load the HTML file content into the text-container
+    fetch('POLICY.html')
       .then(response => response.text())
-      .then(text => {
-        document.getElementById('text-container').innerHTML = text;
+      .then(html => {
+        document.getElementById('text-container').innerHTML = html;
       });
 
     // Enable the agree button when scrolled to the bottom of the text container
@@ -47,4 +47,3 @@
   </script>
 </body>
 </html>
- 
