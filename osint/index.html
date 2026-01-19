@@ -4,26 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Google Contacts Network Graph</title>
+    <title>Network Graph</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --accent-color: #0f0;
-            --panel-bg: rgba(30, 30, 30, 0.9);
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --line-color: #444444;
+            --ui-bg: rgba(0, 0, 0, 0.8);
+            --border-color: #333333;
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             overflow: hidden;
-            /* Prevent scroll on mobile */
             height: 100vh;
             display: flex;
             flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* --- UI Overlay --- */
@@ -34,7 +36,6 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            /* Let clicks pass through to canvas */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -42,39 +43,43 @@
         }
 
         header {
-            padding: 10px 20px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             pointer-events: auto;
+            backdrop-filter: blur(2px);
         }
 
         h1 {
             margin: 0;
-            font-size: 1.2rem;
-            color: var(--accent-color);
-            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: #888;
         }
 
         .btn {
-            background: #333;
-            border: 1px solid #555;
-            color: white;
-            padding: 8px 15px;
+            background: #111;
+            border: 1px solid var(--border-color);
+            color: #eee;
+            padding: 8px 12px;
             cursor: pointer;
             border-radius: 4px;
-            font-size: 0.9rem;
-            transition: background 0.2s;
+            font-size: 0.85rem;
+            transition: all 0.2s;
         }
 
         .btn:hover {
-            background: #555;
+            background: #333;
+            border-color: #666;
         }
 
         .btn-primary {
-            background: #006400;
-            border-color: #008000;
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+            border: none;
         }
 
         /* --- Controls Bar --- */
@@ -83,17 +88,22 @@
             display: flex;
             gap: 10px;
             pointer-events: auto;
-            flex-wrap: wrap;
             justify-content: center;
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+            background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
         }
 
         input[type="text"] {
             padding: 8px;
             border-radius: 4px;
-            border: 1px solid #555;
-            background: #222;
+            border: 1px solid var(--border-color);
+            background: #111;
             color: white;
+            width: 120px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #888;
         }
 
         /* --- Canvas --- */
@@ -103,6 +113,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            background: var(--bg-color);
         }
 
         canvas {
@@ -110,66 +121,19 @@
             width: 100%;
             height: 100%;
             touch-action: none;
-            /* Critical for mobile drag */
-            cursor: grab;
+            /* Critical for custom pinch/zoom */
         }
 
-        canvas.grabbing {
-            cursor: grabbing;
-        }
-
-        /* --- Detail Modal --- */
-        #detail-modal {
+        /* --- Hint Text --- */
+        .hint {
             position: absolute;
-            bottom: -300px;
-            /* Hidden by default */
-            left: 0;
-            width: 100%;
-            background: #1e1e1e;
-            border-top: 2px solid var(--accent-color);
-            padding: 20px;
-            box-sizing: border-box;
-            transition: bottom 0.3s ease-out;
-            pointer-events: auto;
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        #detail-modal.active {
-            bottom: 0;
-        }
-
-        .modal-content {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .modal-img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent-color);
-        }
-
-        .modal-info h2 {
-            margin: 0 0 5px 0;
-            font-size: 1.2rem;
-        }
-
-        .modal-info p {
-            margin: 2px 0;
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #444;
+            font-size: 0.8rem;
+            pointer-events: none;
+            text-align: center;
         }
 
         /* --- Loading / Auth Screen --- */
@@ -179,7 +143,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #121212;
+            background: var(--bg-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -193,39 +157,25 @@
 
     <!-- Auth / Loading Overlay -->
     <div id="auth-screen">
-        <h1 style="margin-bottom: 20px; font-size: 2rem;">CONTACT OSINT</h1>
-        <p id="status-text">Initializing Google API...</p>
-        <button id="auth-btn" class="btn btn-primary" style="display:none; margin-top: 20px;">Authorize Google
+        <h1 style="margin-bottom: 20px; font-size: 1.5rem; color: #fff;">Network Graph</h1>
+        <p id="status-text" style="color:#666;">Initializing...</p>
+        <button id="auth-btn" class="btn btn-primary" style="display:none; margin-top: 20px;">Connect Google
             Contacts</button>
     </div>
 
     <!-- Main Application -->
     <div id="ui-layer" style="display:none;">
         <header>
-            <h1>NETWORK</h1>
-            <div style="display:flex; gap:10px;">
-                <button id="fullscreen-btn" class="btn">⛶</button>
-                <button id="signout-btn" class="btn">Logout</button>
-            </div>
+            <h1>CONTACTS</h1>
+            <button id="signout-btn" class="btn">Logout</button>
         </header>
 
-        <div id="detail-modal">
-            <span class="close-modal">&times;</span>
-            <div class="modal-content">
-                <img id="modal-img" src="" class="modal-img" alt="">
-                <div class="modal-info">
-                    <h2 id="modal-name">Name</h2>
-                    <p id="modal-org">Organization</p>
-                    <p id="modal-email">Email</p>
-                </div>
-            </div>
-        </div>
+        <div class="hint" id="hint-msg">Double-tap node to open contact</div>
 
         <div id="controls-bar">
-            <button id="pause-button" class="btn">Pause</button>
-            <input type="text" id="find-input" placeholder="Search name...">
+            <input type="text" id="find-input" placeholder="Search...">
             <button id="find-button" class="btn">Find</button>
-            <button id="reset-cam-button" class="btn">Reset View</button>
+            <button id="reset-cam-button" class="btn">Reset</button>
         </div>
     </div>
 
@@ -239,9 +189,9 @@
 
     <script>
         // ================= CONFIGURATION =================
-        // TODO: Replace with your own Client ID from Google Cloud Console
+        // TODO: Replace with your own Client ID
         const CLIENT_ID = '490934668566-p1068rrenfhl8n5p5mgqaejt748v1880.apps.googleusercontent.com';
-        const API_KEY = ''; // Optional if using implicit flow with only client ID, but recommended for some quotas.
+        const API_KEY = '';
         const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/people/v1/rest';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -254,45 +204,55 @@
 
         function gapiLoaded() {
             gapi.load('client', async () => {
-                await gapi.client.init({
-                    discoveryDocs: [DISCOVERY_DOC],
-                });
+                await gapi.client.init({ discoveryDocs: [DISCOVERY_DOC] });
                 gapiInited = true;
                 checkAuth();
             });
         }
 
         function gisLoaded() {
+            // Initialize the Token Client with the callback defined immediately
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
-                callback: '', // defined later
+                callback: handleAuthResponse, // Defined below
             });
             gisInited = true;
             checkAuth();
+        }
+
+        // Callback function for the Auth response
+        async function handleAuthResponse(resp) {
+            if (resp.error) {
+                console.error("Auth Error:", resp);
+                if (resp.error === 'popup_closed_by_user') {
+                    document.getElementById('status-text').textContent = "Login cancelled.";
+                }
+                return;
+            }
+            // Save token and load data
+            localStorage.setItem('google_access_token', resp.access_token);
+            loadGoogleContacts();
         }
 
         function checkAuth() {
             if (gapiInited && gisInited) {
                 const token = localStorage.getItem('google_access_token');
                 if (token) {
-                    // Check if token is valid by trying a simple call
                     gapi.client.setToken({ access_token: token });
                     loadGoogleContacts();
                 } else {
-                    document.getElementById('status-text').textContent = "Please sign in to view your network.";
+                    document.getElementById('status-text').textContent = "Sign in required to view graph.";
                     document.getElementById('auth-btn').style.display = 'block';
                 }
             }
         }
 
         document.getElementById('auth-btn').addEventListener('click', () => {
-            tokenClient.callback = async (resp) => {
-                if (resp.error) throw resp;
-                localStorage.setItem('google_access_token', resp.access_token);
-                loadGoogleContacts();
-            };
-            tokenClient.requestAccessToken({ prompt: 'consent' });
+            // Trigger the popup
+            if (tokenClient) {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            }
         });
 
         document.getElementById('signout-btn').addEventListener('click', () => {
@@ -305,14 +265,14 @@
             }
         });
 
-        // ================= DATA FETCHING & PROCESSING =================
+        // ================= DATA FETCHING =================
 
         async function loadGoogleContacts() {
             document.getElementById('auth-btn').style.display = 'none';
-            document.getElementById('status-text').textContent = "Fetching contacts...";
+            document.getElementById('status-text').textContent = "Loading contacts...";
 
             try {
-                // Added 'relations' to the request fields
+                // Fetch connections
                 const response = await gapi.client.people.people.connections.list({
                     'resourceName': 'people/me',
                     'pageSize': 1000,
@@ -320,19 +280,31 @@
                 });
 
                 const connections = response.result.connections || [];
-                document.getElementById('status-text').textContent = `Processing ${connections.length} contacts...`;
+
+                if (connections.length === 0) {
+                    document.getElementById('status-text').textContent = "No contacts found.";
+                    return;
+                }
 
                 processContacts(connections);
 
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('ui-layer').style.display = 'flex';
 
+                // Hint fade out
+                setTimeout(() => {
+                    const hint = document.getElementById('hint-msg');
+                    if (hint) hint.style.opacity = 0;
+                }, 5000);
+
             } catch (err) {
                 console.error("API Error:", err);
-                document.getElementById('status-text').textContent = "Error fetching contacts. See console.";
-                // Only clear token if it's a 401/403 error to avoid loop
+                document.getElementById('status-text').textContent = "Error loading data.";
+
+                // If token is invalid, force logout
                 if (err.status === 401 || err.status === 403) {
                     localStorage.removeItem('google_access_token');
+                    document.getElementById('status-text').textContent = "Session expired. Please login again.";
                     document.getElementById('auth-btn').style.display = 'block';
                 }
             }
@@ -342,17 +314,14 @@
             allContacts = googleData.map(person => {
                 const name = person.names ? person.names[0].displayName : 'Unknown';
                 const photo = person.photos ? person.photos[0].url : null;
-                const email = person.emailAddresses ? person.emailAddresses[0].value : 'No Email';
-                const org = person.organizations ? person.organizations[0].name : null;
-                const id = person.resourceName;
-
-                // Extract relations: Array of { person: "Name", type: "Friend/Partner/etc" }
                 const relations = person.relations ? person.relations.map(r => ({
                     targetName: r.person,
-                    type: r.type // This is the label (Friend, Partner, or Custom)
+                    type: r.type
                 })) : [];
 
-                return { id, name, photo, email, org, relations };
+                let rawId = person.resourceName ? person.resourceName.replace('people/', '') : '';
+
+                return { id: person.resourceName, rawId: rawId, name, photo, relations };
             });
 
             initializeNetworkGraph(allContacts);
@@ -365,17 +334,15 @@
             const ctx = canvas.getContext('2d');
             const container = document.getElementById('network-container');
 
-            // 1. Create Nodes and a Lookup Map for Name -> ID
+            // 1. Setup Nodes
             const nameToIdMap = new Map();
-
             const nodes = contacts.map(c => {
                 if (c.name) nameToIdMap.set(c.name.toLowerCase().trim(), c.id);
-
                 return {
                     id: c.id,
                     data: c,
-                    x: (Math.random() - 0.5) * 800,
-                    y: (Math.random() - 0.5) * 800,
+                    x: (Math.random() - 0.5) * 600,
+                    y: (Math.random() - 0.5) * 600,
                     vx: 0, vy: 0,
                     img: null,
                     isLoaded: false
@@ -392,297 +359,279 @@
                 }
             });
 
-            // 2. Create Edges
+            // 2. Setup Edges
             const edges = [];
+            const edgeExists = (a, b) => edges.some(e => (e.source === a && e.target === b) || (e.source === b && e.target === a));
 
-            const edgeExists = (a, b) => edges.some(e =>
-                (e.source === a && e.target === b) || (e.source === b && e.target === a)
-            );
-
-            contacts.forEach(sourceContact => {
-                if (!sourceContact.relations) return;
-
-                sourceContact.relations.forEach(rel => {
-                    const targetNameClean = rel.targetName.toLowerCase().trim();
-                    const targetId = nameToIdMap.get(targetNameClean);
-
-                    if (targetId && targetId !== sourceContact.id) {
-                        if (!edgeExists(sourceContact.id, targetId)) {
-
-                            // --- UPDATED LOGIC START ---
-                            let strength = 0.05;
-                            let length = 150;
-                            const type = rel.type.toLowerCase();
-
-                            // Store raw value for coloring later
-                            let rawValue = 0;
-
-                            const numVal = parseInt(type);
-
-                            if (!isNaN(numVal)) {
-                                rawValue = numVal;
-                                const magnitude = Math.abs(numVal); // Use absolute value for distance
-
-                                // 1. DISTANCE CALCULATION
-                                // 100 or -100 = Very Close (Length 50)
-                                // 0 = Far (Length 300)
-                                length = 300 - (magnitude * 2.5);
-                                if (length < 50) length = 50; // Clamp minimum distance
-
-                                // 2. STRENGTH CALCULATION
-                                // Higher magnitude = Stronger physics pull
-                                strength = 0.05 + (magnitude / 500);
-                            }
-                            // Handle text keywords (fallback for non-numeric)
-                            else {
-                                if (['spouse', 'partner', 'husband', 'wife', 'girlfriend', 'boyfriend'].includes(type)) {
-                                    strength = 0.3; length = 50; rawValue = 100;
-                                } else if (['friend', 'brother', 'sister', 'parent'].includes(type)) {
-                                    strength = 0.1; length = 100; rawValue = 50;
-                                } else if (['enemy', 'rival', 'ex'].includes(type)) {
-                                    strength = 0.1; length = 100; rawValue = -50; // Negative keyword
-                                }
-                            }
-                            // --- UPDATED LOGIC END ---
-
-                            edges.push({
-                                source: sourceContact.id,
-                                target: targetId,
-                                label: rel.type,
-                                strength: strength,
-                                length: length,
-                                val: rawValue // Store this for the draw function
-                            });
-                        }
+            contacts.forEach(source => {
+                if (!source.relations) return;
+                source.relations.forEach(rel => {
+                    const targetId = nameToIdMap.get(rel.targetName.toLowerCase().trim());
+                    if (targetId && targetId !== source.id && !edgeExists(source.id, targetId)) {
+                        edges.push({ source: source.id, target: targetId });
                     }
                 });
             });
 
-            // --- Physics State ---
+            // --- View State ---
             let scale = 0.8;
             let viewOffset = { x: 0, y: 0 };
-            let isPaused = false;
-            let draggedNode = null;
-            let isPanning = false;
-            let lastPos = { x: 0, y: 0 };
-            const NODE_RADIUS = 25;
+            const NODE_RADIUS = 10;
 
-            // --- Interaction Handlers ---
+            // --- Touch/Mouse Logic ---
+            let isDragging = false;
+            let lastPos = { x: 0, y: 0 };
+            let lastTap = 0;
+            let initialPinchDist = null;
+            let initialScale = null;
+
             function getPointerPos(e) {
+                if (e.touches) {
+                    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+                return { x: e.clientX, y: e.clientY };
+            }
+
+            function getWorldPos(clientX, clientY) {
                 const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 return {
                     x: (clientX - rect.left - rect.width / 2 - viewOffset.x) / scale,
-                    y: (clientY - rect.top - rect.height / 2 - viewOffset.y) / scale,
-                    rawX: clientX, rawY: clientY
+                    y: (clientY - rect.top - rect.height / 2 - viewOffset.y) / scale
                 };
             }
 
-            function onStart(e) {
-                if (e.target !== canvas) return;
-                const pos = getPointerPos(e);
-                const clickedNode = nodes.find(n => {
-                    const dx = n.x - pos.x;
-                    const dy = n.y - pos.y;
+            function getNodeAt(x, y) {
+                return nodes.find(n => {
+                    const dx = n.x - x;
+                    const dy = n.y - y;
                     return (dx * dx + dy * dy) < (NODE_RADIUS * NODE_RADIUS);
                 });
-                if (clickedNode) {
-                    draggedNode = clickedNode;
-                    draggedNode.vx = 0; draggedNode.vy = 0;
-                } else {
-                    isPanning = true;
-                    lastPos = { x: pos.rawX, y: pos.rawY };
-                    canvas.classList.add('grabbing');
+            }
+
+            // Input Event Handlers
+            function onDown(e) {
+                // Pinch Start
+                if (e.touches && e.touches.length === 2) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    initialPinchDist = Math.sqrt(dx * dx + dy * dy);
+                    initialScale = scale;
+                    return;
                 }
+
+                const pos = getPointerPos(e);
+                lastPos = pos;
+                isDragging = true;
+
+                // Double Tap Logic
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+
+                if (tapLength < 300 && tapLength > 0) {
+                    const worldPos = getWorldPos(pos.x, pos.y);
+                    const clickedNode = getNodeAt(worldPos.x, worldPos.y);
+                    if (clickedNode) {
+                        openGoogleContact(clickedNode.data);
+                    }
+                }
+                lastTap = currentTime;
             }
 
             function onMove(e) {
-                if (draggedNode) {
+                // Pinch Zoom
+                if (e.touches && e.touches.length === 2 && initialPinchDist) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    const ratio = dist / initialPinchDist;
+                    scale = Math.min(Math.max(0.1, initialScale * ratio), 5);
+                    return;
+                }
+
+                // Panning
+                if (isDragging) {
                     const pos = getPointerPos(e);
-                    draggedNode.x = pos.x; draggedNode.y = pos.y;
-                    e.preventDefault();
-                } else if (isPanning) {
-                    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-                    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-                    viewOffset.x += cx - lastPos.x;
-                    viewOffset.y += cy - lastPos.y;
-                    lastPos = { x: cx, y: cy };
-                    e.preventDefault();
+                    const dx = pos.x - lastPos.x;
+                    const dy = pos.y - lastPos.y;
+
+                    viewOffset.x += dx;
+                    viewOffset.y += dy;
+                    lastPos = pos;
                 }
             }
 
-            function onEnd(e) {
-                if (draggedNode && Math.abs(draggedNode.vx) < 0.1) {
-                    if (typeof showModal === 'function') showModal(draggedNode);
-                }
-                draggedNode = null;
-                isPanning = false;
-                canvas.classList.remove('grabbing');
+            function onUp(e) {
+                isDragging = false;
+                initialPinchDist = null;
             }
 
             function onWheel(e) {
                 e.preventDefault();
                 scale += e.deltaY * -0.001;
-                scale = Math.min(Math.max(.1, scale), 5);
+                scale = Math.min(Math.max(0.1, scale), 5);
             }
 
-            canvas.addEventListener('mousedown', onStart);
-            canvas.addEventListener('mousemove', onMove);
-            window.addEventListener('mouseup', onEnd);
-            canvas.addEventListener('touchstart', onStart, { passive: false });
-            canvas.addEventListener('touchmove', onMove, { passive: false });
-            window.addEventListener('touchend', onEnd);
+            function openGoogleContact(data) {
+                if (!data.rawId) return;
+                const url = `https://contacts.google.com/person/${data.rawId}`;
+                window.open(url, '_blank');
+            }
+
+            // Listeners
+            canvas.addEventListener('mousedown', onDown);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+
+            canvas.addEventListener('touchstart', onDown, { passive: false });
+            window.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('touchend', onUp);
             canvas.addEventListener('wheel', onWheel, { passive: false });
 
-            // --- Controls ---
-            const btnPause = document.getElementById('pause-button');
-            if (btnPause) btnPause.onclick = function () { isPaused = !isPaused; this.innerText = isPaused ? "Play" : "Pause"; };
+            // Buttons
             const btnReset = document.getElementById('reset-cam-button');
-            if (btnReset) btnReset.onclick = function () { viewOffset = { x: 0, y: 0 }; scale = 0.8; };
+            if (btnReset) btnReset.onclick = () => { viewOffset = { x: 0, y: 0 }; scale = 0.8; };
+
             const btnFind = document.getElementById('find-button');
             if (btnFind) btnFind.onclick = findNode;
 
             function findNode() {
-                const input = document.getElementById('find-input');
-                if (!input) return;
-                const node = nodes.find(n => n.data.name.toLowerCase().includes(input.value.toLowerCase()));
+                const el = document.getElementById('find-input');
+                if (!el) return;
+                const val = el.value.toLowerCase();
+                const node = nodes.find(n => n.data.name.toLowerCase().includes(val));
                 if (node) {
-                    viewOffset.x = -node.x * scale; viewOffset.y = -node.y * scale;
+                    viewOffset.x = -node.x * scale;
+                    viewOffset.y = -node.y * scale;
                     node.highlight = Date.now() + 2000;
                 }
             }
 
-            // --- Loop ---
+            // --- Animation Loop ---
             function resize() { canvas.width = container.clientWidth; canvas.height = container.clientHeight; }
             window.addEventListener('resize', resize);
             resize();
 
             function update() {
-                if (isPaused) return;
-                const repulsion = 2000;
-
+                // Physics: Repulsion
                 for (let i = 0; i < nodes.length; i++) {
                     for (let j = i + 1; j < nodes.length; j++) {
                         const a = nodes[i], b = nodes[j];
                         const dx = b.x - a.x, dy = b.y - a.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                        if (dist > 800) continue;
-                        const force = repulsion / (dist * dist);
-                        a.vx -= (dx / dist) * force; a.vy -= (dy / dist) * force;
-                        b.vx += (dx / dist) * force; b.vy += (dy / dist) * force;
+                        const distSq = dx * dx + dy * dy || 1;
+                        if (distSq > 100000) continue;
+                        const force = 1500 / distSq;
+                        const dist = Math.sqrt(distSq);
+
+                        const fx = (dx / dist) * force;
+                        const fy = (dy / dist) * force;
+
+                        a.vx -= fx; a.vy -= fy;
+                        b.vx += fx; b.vy += fy;
                     }
                 }
 
+                // Physics: Springs (Edges)
                 edges.forEach(e => {
                     const a = nodes.find(n => n.id === e.source);
                     const b = nodes.find(n => n.id === e.target);
                     if (!a || !b) return;
                     const dx = b.x - a.x, dy = b.y - a.y;
                     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                    const force = (dist - e.length) * e.strength;
-                    a.vx += (dx / dist) * force; a.vy += (dy / dist) * force;
-                    b.vx -= (dx / dist) * force; b.vy -= (dy / dist) * force;
+                    const force = (dist - 200) * 0.05;
+
+                    const fx = (dx / dist) * force;
+                    const fy = (dy / dist) * force;
+
+                    a.vx += fx; a.vy += fy;
+                    b.vx -= fx; b.vy -= fy;
                 });
 
+                // Physics: Apply
                 nodes.forEach(n => {
-                    n.vx -= n.x * 0.0002; n.vy -= n.y * 0.0002;
-                    if (n !== draggedNode) {
-                        n.x += n.vx; n.y += n.vy;
-                        n.vx *= 0.85; n.vy *= 0.85;
-                    }
+                    n.vx -= n.x * 0.001; // Center gravity
+                    n.vy -= n.y * 0.001;
+
+                    n.x += n.vx;
+                    n.y += n.vy;
+                    n.vx *= 0.90; // Friction
+                    n.vy *= 0.90;
                 });
             }
 
             function draw() {
                 ctx.save();
-                ctx.fillStyle = '#121212';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
                 ctx.translate(canvas.width / 2 + viewOffset.x, canvas.height / 2 + viewOffset.y);
                 ctx.scale(scale, scale);
 
-                // --- EDGES RENDERING ---
+                // Edges
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
                 edges.forEach(e => {
                     const a = nodes.find(n => n.id === e.source);
                     const b = nodes.find(n => n.id === e.target);
                     if (a && b) {
-                        ctx.beginPath();
                         ctx.moveTo(a.x, a.y);
                         ctx.lineTo(b.x, b.y);
-
-                        // Thicker lines for visibility
-                        ctx.lineWidth = 2;
-
-                        // --- COLOR LOGIC ---
-                        if (e.val < 0) {
-                            // NEGATIVE = Bright Red
-                            ctx.strokeStyle = 'rgba(255, 0, 85, 0.8)';
-                            ctx.shadowColor = '#ff0055';
-                            ctx.shadowBlur = 5; // Neon glow effect
-                        } else if (e.val > 0 || e.strength > 0.1) {
-                            // POSITIVE/CLOSE = Bright Green
-                            ctx.strokeStyle = 'rgba(0, 255, 85, 0.8)';
-                            ctx.shadowColor = '#00ff55';
-                            ctx.shadowBlur = 5;
-                        } else {
-                            // NEUTRAL/WEAK = Dimmer Grey/Green
-                            ctx.strokeStyle = 'rgba(100, 255, 100, 0.3)';
-                            ctx.shadowBlur = 0;
-                        }
-
-                        ctx.stroke();
-                        // Reset shadow for next elements
-                        ctx.shadowBlur = 0;
-
-                        if (scale > 1.2) {
-                            ctx.fillStyle = '#888'; ctx.font = '10px Arial'; ctx.textAlign = 'center';
-                            ctx.fillText(e.label, (a.x + b.x) / 2, (a.y + b.y) / 2);
-                        }
                     }
                 });
+                ctx.stroke();
 
-                // --- NODES RENDERING ---
+                // Nodes
                 nodes.forEach(n => {
                     const isHighlight = n.highlight && n.highlight > Date.now();
+
                     ctx.save();
                     ctx.translate(n.x, n.y);
-
-                    if (isHighlight || n === draggedNode) {
-                        ctx.shadowColor = '#ffff00'; ctx.shadowBlur = 20;
-                    }
 
                     ctx.beginPath();
                     ctx.arc(0, 0, NODE_RADIUS, 0, Math.PI * 2);
                     ctx.closePath();
+
+                    ctx.save();
                     ctx.clip();
 
                     if (n.img && n.isLoaded) {
                         ctx.drawImage(n.img, -NODE_RADIUS, -NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);
                     } else {
-                        ctx.fillStyle = '#333'; ctx.fill();
-                        ctx.fillStyle = '#0f0'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold 14px Arial';
-                        ctx.fillText(n.data.name ? n.data.name.substring(0, 2).toUpperCase() : '??', 0, 0);
+                        ctx.fillStyle = '#111';
+                        ctx.fill();
+                        ctx.fillStyle = '#fff';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText(n.data.name ? n.data.name.substring(0, 2).toUpperCase() : '?', 0, 0);
                     }
-
-                    ctx.strokeStyle = isHighlight ? '#ffff00' : '#00ff00';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
                     ctx.restore();
 
-                    if (scale > 0.6 || isHighlight || n === draggedNode) {
-                        ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '12px Arial';
-                        ctx.fillText(n.data.name, n.x, n.y + NODE_RADIUS + 15);
+                    ctx.strokeStyle = isHighlight ? '#fff' : '#666';
+                    ctx.lineWidth = isHighlight ? 3 : 1.5;
+                    ctx.stroke();
+
+                    if (scale > 0.6 || isHighlight) {
+                        ctx.fillStyle = isHighlight ? '#fff' : '#aaa';
+                        ctx.textAlign = 'center';
+                        ctx.font = '10px Arial';
+                        ctx.fillText(n.data.name, 0, NODE_RADIUS + 12);
                     }
+
+                    ctx.restore();
                 });
+
                 ctx.restore();
+                requestAnimationFrame(draw);
             }
 
-            function loop() { update(); draw(); requestAnimationFrame(loop); }
-            loop();
+            setInterval(update, 1000 / 60);
+            draw();
         }
     </script>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
 </body>
 
 </html>
